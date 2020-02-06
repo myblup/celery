@@ -86,7 +86,7 @@ class test_AsyncResult:
             pass
         self.mytask = mytask
 
-    def test_forget(self):
+    def test_forget_parents(self):
         first = Mock()
         second = self.app.AsyncResult(self.task1['id'], parent=first)
         third = self.app.AsyncResult(self.task2['id'], parent=second)
@@ -96,6 +96,15 @@ class test_AsyncResult:
         assert last.result is None
         assert second.result is None
 
+    def test_forget_children(self):
+        children = [Mock() for i in range(3)]
+        header = self.app.AsyncResult('1')
+        header._cache = {'children': children, 'status': states.SUCCESS}
+        header.backend = Mock()
+        header.forget()
+        for child in children:
+            child.forget.assert_called()
+    
     def test_ignored_getter(self):
         result = self.app.AsyncResult(uuid())
         assert result.ignored is False

@@ -546,6 +546,8 @@ class test_chord:
         result = c()
         assert result.get(timeout=TIMEOUT) == 4
 
+    # XXX How does this test work when simple manual testing shows we STILL have
+    # leaking channels ???
     @pytest.mark.flaky(reruns=5, reruns_delay=1, cause=is_retryable_exception)
     def test_redis_subscribed_channels_leak(self, manager):
         if not manager.app.conf.result_backend.startswith('redis'):
@@ -649,7 +651,7 @@ class test_chord:
         assert res.get(timeout=TIMEOUT) == [12, 13, 14, 15]
 
     @pytest.mark.flaky(reruns=5, reruns_delay=1, cause=is_retryable_exception)
-    @pytest.mark.xfail(os.environ['TEST_BACKEND'] == 'cache+pylibmc://',
+    @pytest.mark.xfail(os.environ.get('TEST_BACKEND', '') == 'cache+pylibmc://',
                        reason="Not supported yet by the cache backend.",
                        strict=True,
                        raises=ChordError)

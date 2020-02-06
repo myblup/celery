@@ -131,6 +131,10 @@ class AsyncResult(ResultBase):
 
     def forget(self):
         """Forget the result of this task and its parents."""
+        children = self.children
+        if children:
+            for child in children:
+                child.forget()
         self._cache = None
         if self.parent:
             self.parent.forget()
